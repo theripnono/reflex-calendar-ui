@@ -5,7 +5,7 @@ import reflex as rx
 from rxconfig import config
 import calendar
 from datetime import datetime
-obj=calendar.Calendar()
+
 
 
 class State(rx.State):
@@ -51,11 +51,11 @@ class State(rx.State):
     def change_month(self, month_num:int):
         self.current_month=int(month_num)
 
-    @rx.var(cache=True)
-    def get_calendar(self) -> list[list]:  
-        weeks = obj.monthdatescalendar(self.current_year, self.current_month)
-        month_rows = [[day.day for day in week] for week in weeks]
-        return month_rows
+    # @rx.var(cache=True)
+    # def get_calendar(self) -> list[list]:  
+    #     weeks = cal.monthdatescalendar(self.current_year, self.current_month)
+    #     month_rows = [[day.day for day in week] for week in weeks]
+    #     return month_rows
     
 
     @rx.var(cache=True)
@@ -63,10 +63,12 @@ class State(rx.State):
         return f'{calendar.month_name[self.current_month]} {self.current_year}'
 
     @rx.var(cache=True)
-    def months_days_range(self,)->int:
-        days_of_month = calendar.monthrange(self.current_year,self.current_month)[1]
+    def months_days_range(self,)->list:
+        cal=calendar.Calendar()
+        #days_of_month = calendar.monthrange(self.current_year,self.current_month)[1]
+        days_of_the_month = [day for day in cal.itermonthdates(self.current_year, self.current_month)]
 
-        return days_of_month
+        return days_of_the_month
 
 def display_months(month:list):
     return rx.card(
@@ -86,17 +88,18 @@ def open_drawer(link:rx.Component)->rx.Component:
                             align_items="start",
                             direction="column",
                         ),
+                        rx.text(link),
                         top="auto",
                         right="auto",
                         height="100%",
                         width="20em",
                         padding="2em",
-                        background_color="teal"
+                        background_color="#F5F5F5"
                         # background_color=rx.color("green", 3)
                     )
                 ),
                 direction="left",
-                )
+            )
 
 def mycalendar() -> rx.Component:
     # Calendar Page
@@ -139,12 +142,24 @@ def mycalendar() -> rx.Component:
             ),
             id="box-button"
             ),
+              #Weeks Day
             rx.grid(
                 rx.foreach(
-                    rx.Var.range(30),  # For days in a month
+                    State.columns,
+                    lambda i: rx.box( rx.card(i),height="10vh")
+                    ),
+                
+                columns="7",  # 7 columns for days of week
+                spacing="4",
+                width="100%",
+            ),
+            rx.grid(
+                rx.foreach(
+                    State.months_days_range,  # For days in a month
+                    #rx.Var.range(2),
                     lambda i: rx.box(
                                     rx.card(
-                                            open_drawer(rx.link(f"{i + 1}")),
+                                            open_drawer(rx.link(i)),
                                             height="10vh"
                                         ),
                                 ),
@@ -156,11 +171,10 @@ def mycalendar() -> rx.Component:
            
             id="vstack-box",
             spacing="5",
-            justify="center",
+            justify="start",
             min_height="85vh",
-            
+            padding_top ="50px",
         ),
-        
     )
 
 
