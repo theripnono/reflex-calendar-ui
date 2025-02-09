@@ -4,7 +4,7 @@ import reflex as rx
 
 from rxconfig import config
 import calendar
-from datetime import datetime
+from datetime import datetime,date
 
 
 
@@ -22,16 +22,6 @@ class State(rx.State):
     current_year: int = datetime.today().year
     current_month: int = datetime.today().month
     
-    @rx.var(cache=True)
-    def months_days_range2(self)->dict:
-        cal=calendar.Calendar()
-        days_of_the_month = {int(day.day):day.strftime('%Y-%m-%d') for day in cal.itermonthdates(self.current_year, self.current_month)}
-        return days_of_the_month
-
-    days_of_month:dict[int,datetime]=months_days_range2
-
-
-
 
     def next_month(self):
         """Increment the month and update the state"""
@@ -67,11 +57,17 @@ class State(rx.State):
         return f'{calendar.month_name[self.current_month]} {self.current_year}'
 
     @rx.var(cache=True)
-    def months_days_range(self,)->list:
+    def months_days_range(self,)->list[int]:
         cal=calendar.Calendar()
-        days_of_the_month = [day for day in cal.itermonthdates(self.current_year, self.current_month)]
+        days_of_the_month = [int(day.day) for day in cal.itermonthdates(self.current_year, self.current_month)]
         return days_of_the_month
 
+
+    # def get_datetime(self,)->str:
+    #     yearmonth = str(self.current_year) + str(self.current_month)
+    #     return yearmonth
+
+    
 def display_months(month:list):
     return rx.card(
                 rx.link(month[1]),
@@ -84,8 +80,10 @@ def display_days(days:list):
                 ,height="10vh"
             )
 
+def open_drawer(link:rx.Component, day:int)->rx.Component:
 
-def open_drawer(link:rx.Component,day:str)->rx.Component:
+    render_text = rx.text(f'{day}-{State.current_month}-{State.current_year}')
+
     return  rx.drawer.root(
                 rx.drawer.trigger(link),
                 rx.drawer.overlay(z_index="5"),
@@ -96,7 +94,7 @@ def open_drawer(link:rx.Component,day:str)->rx.Component:
                             align_items="start",
                             direction="column",
                         ),
-                        rx.text(day),
+                        render_text,
                         top="auto",
                         right="auto",
                         height="100%",
@@ -163,33 +161,33 @@ def mycalendar() -> rx.Component:
                 gap=0,
                 background_color="#F5F5F5",
             ),
-            # Month Days
-            # rx.grid(
-            #     rx.foreach(
-            #         State.months_days_range,  # For days in a month
-            #         #rx.Var.range(2),
-            #         lambda i: rx.box(
-            #                         rx.card(
-            #                                 open_drawer(rx.link(i)),
-            #                                 height="10vh"
-            #                             ),
-            #                     ),
-            #             ),
-            #             columns="7",  # 7 columns for days of week
-            #             spacing="4",
-            #             width="100%",
-            #             gap=0,
-            # ),
+            #Month Days
             rx.grid(
                 rx.foreach(
-                    State.days_of_month,  # For days in a month
-                    display_days
+                    State.months_days_range,  # For days in a month
+                    #rx.Var.range(2),
+                    lambda i: rx.box(
+                                    rx.card(
+                                            open_drawer(rx.link(i),i),  # Extract only the day number
+                                            height="10vh"
+                                        ),
+                                ),
                         ),
                         columns="7",  # 7 columns for days of week
                         spacing="4",
                         width="100%",
                         gap=0,
             ),
+            # rx.grid(
+            #     rx.foreach(
+            #         State.days_of_month,  # For days in a month
+            #         display_days
+            #             ),
+            #             columns="7",  # 7 columns for days of week
+            #             spacing="4",
+            #             width="100%",
+            #             gap=0,
+            # ),
             id="vstack-box",
             spacing="5",
             justify="start",
