@@ -289,7 +289,7 @@ def mycalendar() -> rx.Component:
                     lambda i: rx.box(
                                     rx.card(
                                             open_drawer(rx.link(i,
-                                                                size="5",
+                                                                size="3",
                                                                 color_scheme="mint")
                                                                 ,i
                                                         ),  # Extract only the day number
