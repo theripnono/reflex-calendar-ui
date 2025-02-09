@@ -22,6 +22,16 @@ class State(rx.State):
     current_year: int = datetime.today().year
     current_month: int = datetime.today().month
     
+    @rx.var(cache=True)
+    def months_days_range2(self)->dict:
+        cal=calendar.Calendar()
+        days_of_the_month = {int(day.day):day.strftime('%Y-%m-%d') for day in cal.itermonthdates(self.current_year, self.current_month)}
+        return days_of_the_month
+
+    days_of_month:dict[int,datetime]=months_days_range2
+
+
+
 
     def next_month(self):
         """Increment the month and update the state"""
@@ -51,12 +61,6 @@ class State(rx.State):
     def change_month(self, month_num:int):
         self.current_month=int(month_num)
 
-    # @rx.var(cache=True)
-    # def get_calendar(self) -> list[list]:  
-    #     weeks = cal.monthdatescalendar(self.current_year, self.current_month)
-    #     month_rows = [[day.day for day in week] for week in weeks]
-    #     return month_rows
-    
 
     @rx.var(cache=True)
     def current_month_str(self)->str:
@@ -65,9 +69,7 @@ class State(rx.State):
     @rx.var(cache=True)
     def months_days_range(self,)->list:
         cal=calendar.Calendar()
-        #days_of_month = calendar.monthrange(self.current_year,self.current_month)[1]
         days_of_the_month = [day for day in cal.itermonthdates(self.current_year, self.current_month)]
-
         return days_of_the_month
 
 def display_months(month:list):
@@ -76,8 +78,14 @@ def display_months(month:list):
                 on_click=State.change_month(month[0])
             )
 
+def display_days(days:list):
+    return rx.card(
+                open_drawer(rx.link(days[0]),days[1])
+                ,height="10vh"
+            )
 
-def open_drawer(link:rx.Component)->rx.Component:
+
+def open_drawer(link:rx.Component,day:str)->rx.Component:
     return  rx.drawer.root(
                 rx.drawer.trigger(link),
                 rx.drawer.overlay(z_index="5"),
@@ -88,7 +96,7 @@ def open_drawer(link:rx.Component)->rx.Component:
                             align_items="start",
                             direction="column",
                         ),
-                        rx.text(link),
+                        rx.text(day),
                         top="auto",
                         right="auto",
                         height="100%",
@@ -152,23 +160,36 @@ def mycalendar() -> rx.Component:
                 columns="7",  # 7 columns for days of week
                 spacing="4",
                 width="100%",
+                gap=0,
+                background_color="#F5F5F5",
             ),
+            # Month Days
+            # rx.grid(
+            #     rx.foreach(
+            #         State.months_days_range,  # For days in a month
+            #         #rx.Var.range(2),
+            #         lambda i: rx.box(
+            #                         rx.card(
+            #                                 open_drawer(rx.link(i)),
+            #                                 height="10vh"
+            #                             ),
+            #                     ),
+            #             ),
+            #             columns="7",  # 7 columns for days of week
+            #             spacing="4",
+            #             width="100%",
+            #             gap=0,
+            # ),
             rx.grid(
                 rx.foreach(
-                    State.months_days_range,  # For days in a month
-                    #rx.Var.range(2),
-                    lambda i: rx.box(
-                                    rx.card(
-                                            open_drawer(rx.link(i)),
-                                            height="10vh"
-                                        ),
-                                ),
+                    State.days_of_month,  # For days in a month
+                    display_days
                         ),
                         columns="7",  # 7 columns for days of week
                         spacing="4",
                         width="100%",
+                        gap=0,
             ),
-           
             id="vstack-box",
             spacing="5",
             justify="start",
