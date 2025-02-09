@@ -80,29 +80,54 @@ def display_days(days:list):
                 ,height="10vh"
             )
 
+def open_dialog(button:rx.Component,date:str)->rx.Component:
+
+    return rx.dialog.root(
+            rx.dialog.trigger(button),
+            rx.dialog.content(
+                rx.dialog.title(date),
+                rx.text_area(
+                    placeholder="Enter your task",
+                ),
+            rx.dialog.close(
+                rx.button("Add", size="3",color_scheme="mint",padding_top="2px"),
+            ),
+            spacing="3",
+            justify="end",
+        ),
+    )
+
+
 def open_drawer(link:rx.Component, day:int)->rx.Component:
 
     render_text = rx.text(f'{day}-{State.current_month}-{State.current_year}')
 
-    return  rx.drawer.root(
+    return rx.drawer.root(
                 rx.drawer.trigger(link),
                 rx.drawer.overlay(z_index="5"),
                 rx.drawer.portal(
-                    rx.drawer.content(
-                        rx.flex(
-                            rx.drawer.close(rx.box(rx.button("Close"))),
-                            align_items="start",
-                            direction="column",
-                        ),
-                        render_text,
+                    rx.drawer.content(                 
+                            rx.vstack(
+                                rx.box(
+                                    rx.drawer.close(
+                                        rx.button("Close",color_scheme="mint")
+                                    )
+                                ),
+                                rx.box(open_dialog(rx.button(
+                                                    "+ Add Schedule",
+                                                    color_scheme="mint",
+                                                    width="10em"),render_text)
+                                    ),
+                            ),
+      
                         top="auto",
                         right="auto",
                         height="100%",
-                        width="20em",
+                        width="15em",
                         padding="2em",
-                        background_color="#F5F5F5"
-                        # background_color=rx.color("green", 3)
-                    )
+                        background_color="#F7F9F2"
+                    ),
+                    
                 ),
                 direction="left",
             )
@@ -116,7 +141,7 @@ def mycalendar() -> rx.Component:
             rx.popover.root(
                 rx.popover.trigger(
                     rx.link(
-                        rx.heading(State.current_month_str, size="6"),
+                        rx.heading(State.current_month_str, color="#91DDCF", size="6"),
                         on_click=State.open_popover),  
                 ),
                 rx.popover.content(
@@ -136,15 +161,19 @@ def mycalendar() -> rx.Component:
             rx.hstack(
                rx.button(
                 "<< Previous Month ", on_click=State.prev_month,
+                                    color_scheme="mint"
             ),
                 rx.button(
                 "Next Month >>", on_click=State.next_month,
+                                color_scheme="mint"
             ),
              rx.button(
                 "<< Previous Year ", on_click=State.prev_year,
+                color_scheme="mint"
             ),
                 rx.button(
                 "Next Year >>", on_click=State.next_year,
+                color_scheme="mint"
             ),
             id="box-button"
             ),
@@ -152,25 +181,27 @@ def mycalendar() -> rx.Component:
             rx.grid(
                 rx.foreach(
                     State.columns,
-                    lambda i: rx.box( rx.card(i),height="10vh")
+                    lambda i: rx.box(rx.card(i,background_color="#F7F9F2"))
                     ),
-                
                 columns="7",  # 7 columns for days of week
                 spacing="4",
                 width="100%",
                 gap=0,
-                background_color="#F5F5F5",
             ),
             #Month Days
             rx.grid(
                 rx.foreach(
                     State.months_days_range,  # For days in a month
-                    #rx.Var.range(2),
                     lambda i: rx.box(
                                     rx.card(
-                                            open_drawer(rx.link(i),i),  # Extract only the day number
-                                            height="10vh"
-                                        ),
+                                            open_drawer(rx.link(i,
+                                                                size="5",
+                                                                color_scheme="mint")
+                                                                ,i
+                                                        ),  # Extract only the day number
+                                            height="10vh",
+                                            background_color="#F7F9F2",
+                                        ), 
                                 ),
                         ),
                         columns="7",  # 7 columns for days of week
@@ -178,16 +209,6 @@ def mycalendar() -> rx.Component:
                         width="100%",
                         gap=0,
             ),
-            # rx.grid(
-            #     rx.foreach(
-            #         State.days_of_month,  # For days in a month
-            #         display_days
-            #             ),
-            #             columns="7",  # 7 columns for days of week
-            #             spacing="4",
-            #             width="100%",
-            #             gap=0,
-            # ),
             id="vstack-box",
             spacing="5",
             justify="start",
