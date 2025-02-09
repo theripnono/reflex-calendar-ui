@@ -4,7 +4,7 @@ import reflex as rx
 
 from rxconfig import config
 import calendar
-from datetime import datetime
+from datetime import datetime,date
 
 
 
@@ -57,11 +57,17 @@ class State(rx.State):
         return f'{calendar.month_name[self.current_month]} {self.current_year}'
 
     @rx.var(cache=True)
-    def months_days_range(self,)->list:
+    def months_days_range(self,)->list[int]:
         cal=calendar.Calendar()
-        days_of_the_month = [day for day in cal.itermonthdates(self.current_year, self.current_month)]
+        days_of_the_month = [int(day.day) for day in cal.itermonthdates(self.current_year, self.current_month)]
         return days_of_the_month
 
+
+    # def get_datetime(self,)->str:
+    #     yearmonth = str(self.current_year) + str(self.current_month)
+    #     return yearmonth
+
+    
 def display_months(month:list):
     return rx.card(
                 rx.link(month[1]),
@@ -74,8 +80,10 @@ def display_days(days:list):
                 ,height="10vh"
             )
 
+def open_drawer(link:rx.Component, day:int)->rx.Component:
 
-def open_drawer(link:rx.Component)->rx.Component:
+    render_text = rx.text(f'{day}-{State.current_month}-{State.current_year}')
+
     return  rx.drawer.root(
                 rx.drawer.trigger(link),
                 rx.drawer.overlay(z_index="5"),
@@ -86,7 +94,7 @@ def open_drawer(link:rx.Component)->rx.Component:
                             align_items="start",
                             direction="column",
                         ),
-                        rx.text(link),
+                        render_text,
                         top="auto",
                         right="auto",
                         height="100%",
@@ -160,7 +168,7 @@ def mycalendar() -> rx.Component:
                     #rx.Var.range(2),
                     lambda i: rx.box(
                                     rx.card(
-                                            open_drawer(rx.link(i)),
+                                            open_drawer(rx.link(i),i),  # Extract only the day number
                                             height="10vh"
                                         ),
                                 ),
