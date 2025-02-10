@@ -7,7 +7,6 @@ import calendar
 from datetime import datetime,date
 
 
-
 class State(rx.State):
 
     columns: list[str] = ["Mon", "Tue","Wen","Thu","Fri","Sat","Sun"]
@@ -207,11 +206,7 @@ def open_drawer(link:rx.Component, day:int)->rx.Component:
                                         rx.button("Close",color_scheme="mint")
                                     )
                                 ),
-                                rx.box(open_dialog(rx.button(
-                                                    "+ Add Schedule",
-                                                    color_scheme="mint",
-                                                    width="10em"),render_text)
-                                    ),
+                                
                             ),
       
                         top="auto",
@@ -269,7 +264,13 @@ def mycalendar() -> rx.Component:
                 "Next Year >>", on_click=State.next_year,
                 color_scheme="mint"
             ),
+            rx.box(open_dialog(rx.button(
+                                        "+ Add Schedule",
+                                        color_scheme="mint",
+                                        width="10em"),"test")
+            ),
             id="box-button"
+            
             ),
               #Weeks Day
             rx.grid(
