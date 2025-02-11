@@ -79,8 +79,6 @@ def display_days(days:list):
                 ,height="10vh"
             )
 
-
-
 ##########
 def form_field(
     label: str, placeholder: str, type: str, name: str) -> rx.Component:
@@ -183,9 +181,6 @@ def open_dialog(button:rx.Component,date:str)->rx.Component:
             rx.dialog.content(
                 event_form()
                 ),
-            # rx.dialog.close(
-            #     rx.button("Add", size="3",color_scheme="mint",padding_top="2px"),
-            # ),
             spacing="3",
             justify="end",
         ),
@@ -208,7 +203,6 @@ def open_drawer(link:rx.Component, day:int)->rx.Component:
                                 ),
                                 
                             ),
-      
                         top="auto",
                         right="auto",
                         height="100%",
@@ -224,54 +218,50 @@ def open_drawer(link:rx.Component, day:int)->rx.Component:
 def mycalendar() -> rx.Component:
     # Calendar Page
     return rx.container(
-     
         rx.color_mode.button(position="top-right"),
         rx.vstack(
-            rx.popover.root(
-                rx.popover.trigger(
-                    rx.link(
-                        rx.heading(State.current_month_str, color="#91DDCF", size="6"),
-                        on_click=State.open_popover),  
-                ),
-                rx.popover.content(
-                    rx.flex(
-                        rx.grid(
-                            rx.foreach(
-                                    State.months,
-                                    display_months
-                                ),
-                            columns="3",
-                            spacing="4",
-                            width="100%",
-                        )
-                    ),
-                ),
-            ),
+            
             rx.hstack(
                rx.button(
-                "<< Previous Month ", on_click=State.prev_month,
+                "<", on_click=State.prev_month,
                                     color_scheme="mint"
             ),
-                rx.button(
-                "Next Month >>", on_click=State.next_month,
-                                color_scheme="mint"
+            rx.hstack(
+                rx.popover.root(
+                    rx.popover.trigger(
+                        rx.button(
+                            rx.heading(State.current_month_str, color="black", size="6"),
+                            on_click=State.open_popover,
+                            color_scheme="mint"),  
+                    ),
+                    rx.popover.content(
+                        rx.flex(
+                            rx.grid(
+                                rx.foreach(
+                                        State.months,
+                                        display_months
+                                    ),
+                                columns="3",
+                                spacing="4",
+                                width="100%",
+                            )
+                        ),
+                    ),
+                )
             ),
-             rx.button(
-                "<< Previous Year ", on_click=State.prev_year,
-                color_scheme="mint"
-            ),
-                rx.button(
-                "Next Year >>", on_click=State.next_year,
-                color_scheme="mint"
-            ),
-            rx.box(open_dialog(rx.button(
-                                        "+ Add Schedule",
-                                        color_scheme="mint",
-                                        width="10em"),"test")
-            ),
-            id="box-button"
             
+            rx.button(">", on_click=State.next_month, color_scheme="mint"),
+            #  rx.button(
+            #     "<< Previous Year ", on_click=State.prev_year,
+            #     color_scheme="mint"
+            # ),
+            #     rx.button(
+            #     "Next Year >>", on_click=State.next_year,
+            #     color_scheme="mint"
+            # ),
+            id="box-button"    
             ),
+            rx.hstack(rx.box(open_dialog(rx.button("+ Add Event", color_scheme="mint", width="10em",justify="center"),"test"))),
               #Weeks Day
             rx.grid(
                 rx.foreach(
