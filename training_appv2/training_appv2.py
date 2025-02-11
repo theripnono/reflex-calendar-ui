@@ -16,11 +16,10 @@ class State(rx.State):
                     5: "May", 6: "June", 7: "July", 8: "August",
                     9: "September", 10: "October", 11: "November", 12: "December"
                 }
-
-            
+       
     current_year: int = datetime.today().year
     current_month: int = datetime.today().month
-    
+
 
     def next_month(self):
         """Increment the month and update the state"""
@@ -49,7 +48,6 @@ class State(rx.State):
 
     def change_month(self, month_num:int):
         self.current_month=int(month_num)
-
 
     @rx.var(cache=True)
     def current_month_str(self)->str:
@@ -89,6 +87,7 @@ def display_days(days:list):
 ##########
 def form_field(
     label: str, placeholder: str, type: str, name: str) -> rx.Component:
+    
     return rx.form.field(
         rx.flex(
             rx.form.label(label),
@@ -193,9 +192,24 @@ def open_dialog(button:rx.Component,date:str)->rx.Component:
         ),
 
 
-def open_drawer(link:rx.Component, day:int)->rx.Component:
 
-    render_text = rx.text(f'{day}-{State.current_month}-{State.current_year}')
+def task_list(day):
+    
+    return rx.hstack(
+            rx.box(
+                rx.text(f'{day}-{State.current_month}-{State.current_year}')
+            )
+            ),rx.hstack(
+                rx.box(
+                    rx.list(
+                        rx.list.item("Example 1"),
+                        rx.list.item("Example 2"),
+                        rx.list.item("Example 3"),
+                    )
+                )
+            ),
+        
+def open_drawer(link:rx.Component, day:int)->rx.Component:
 
     return rx.drawer.root(
                 rx.drawer.trigger(link),
@@ -204,11 +218,9 @@ def open_drawer(link:rx.Component, day:int)->rx.Component:
                     rx.drawer.content(                 
                             rx.vstack(
                                 rx.box(
-                                    rx.drawer.close(
-                                        rx.button("Close",color_scheme="mint")
-                                    )
+                                    rx.drawer.close(rx.button("Close",color_scheme="mint"))
                                 ),
-                                
+                                task_list(day),   
                             ),
                         top="auto",
                         right="auto",
@@ -226,13 +238,9 @@ def mycalendar() -> rx.Component:
     # Calendar Page
     return rx.container(
         rx.color_mode.button(position="top-right"),
-        rx.vstack(
-            
+        rx.vstack( 
             rx.hstack(
-               rx.button(
-                "<", on_click=State.prev_month,
-                                    color_scheme="mint"
-            ),
+            rx.button( "<", on_click=State.prev_month, color_scheme="mint"),
             rx.hstack(
                 rx.popover.root(
                     rx.popover.trigger(
@@ -272,7 +280,6 @@ def mycalendar() -> rx.Component:
                     ),
                 )
             ),
-            
             rx.button(">", on_click=State.next_month, color_scheme="mint"),
             id="box-button"    
             ),
