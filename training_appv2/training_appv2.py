@@ -56,6 +56,10 @@ class State(rx.State):
         return f'{calendar.month_name[self.current_month]} {self.current_year}'
 
     @rx.var(cache=True)
+    def current_year_str(self)->str:
+        return f'{self.current_year}'
+
+    @rx.var(cache=True)
     def months_days_range(self,)->list[int]:
         cal=calendar.Calendar()
         days_of_the_month = [int(day.day) for day in cal.itermonthdates(self.current_year, self.current_month)]
@@ -69,8 +73,11 @@ class State(rx.State):
     
 def display_months(month:list):
     return rx.card(
-                rx.link(month[1]),
-                on_click=State.change_month(month[0])
+                rx.link(month[1],
+                        color_scheme="mint",
+                        background_color="#F7F9F2"),
+                on_click=State.change_month(month[0],
+            )
             )
 
 def display_days(days:list):
@@ -232,33 +239,41 @@ def mycalendar() -> rx.Component:
                         rx.button(
                             rx.heading(State.current_month_str, color="black", size="6"),
                             on_click=State.open_popover,
-                            color_scheme="mint"),  
+                            color_scheme="mint"
+                        ),  
                     ),
                     rx.popover.content(
-                        rx.flex(
-                            rx.grid(
-                                rx.foreach(
-                                        State.months,
-                                        display_months
-                                    ),
-                                columns="3",
-                                spacing="4",
-                                width="100%",
-                            )
+                        rx.vstack(
+                            rx.hstack(
+                                rx.box(
+                                    rx.button("<", on_click=State.prev_year,color_scheme="mint")
+                                ),
+                                rx.box(
+                                    rx.button(State.current_year_str, color_scheme="mint")
+                                ),  
+                                rx.box(
+                                    rx.button(">", on_click=State.next_year,color_scheme="mint")
+                                ),
+                            ),
+                            rx.hstack(rx.flex(
+                                rx.grid(
+                                    rx.foreach(
+                                            State.months,
+                                            display_months,
+                                            
+                                        ),
+                                    columns="3",
+                                    spacing="4",
+                                    width="100%",
+                                    )
+                                )
+                            ),
                         ),
                     ),
                 )
             ),
             
             rx.button(">", on_click=State.next_month, color_scheme="mint"),
-            #  rx.button(
-            #     "<< Previous Year ", on_click=State.prev_year,
-            #     color_scheme="mint"
-            # ),
-            #     rx.button(
-            #     "Next Year >>", on_click=State.next_year,
-            #     color_scheme="mint"
-            # ),
             id="box-button"    
             ),
             rx.hstack(rx.box(open_dialog(rx.button("+ Add Event", color_scheme="mint", width="10em",justify="center"),"test"))),
